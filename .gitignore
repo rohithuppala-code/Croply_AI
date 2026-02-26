@@ -1,0 +1,57 @@
+# ─── Python ───────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+*.whl
+
+# Virtual environments
+my_env/
+venv/
+env/
+.venv/
+
+# ─── Environment Variables ────────────────────────────────────
+.env
+*.env.local
+
+# ─── Model Weights (too large for GitHub) ─────────────────────
+*.pth
+*.pt
+*.h5
+*.onnx
+
+# ─── Datasets ─────────────────────────────────────────────────
+backend/Datasets/
+backend/app/Datasets/
+**/Datasets/
+**/PlantVillage/
+
+# ─── Test Images ──────────────────────────────────────────────
+backend/test_images/
+backend/app/test_images/
+
+# ─── Node.js ──────────────────────────────────────────────────
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+
+# ─── IDE / Editor ─────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ─── OS ───────────────────────────────────────────────────────
+*.log
+*.tmp
+*.bak
