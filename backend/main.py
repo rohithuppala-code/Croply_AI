@@ -79,6 +79,21 @@ async def predict(file: UploadFile = File(...), language: str = Form("English"))
         # Model prediction
         prediction = predict_leaf_disease(tmp_path)
 
+        # Low confidence → likely not a valid / clear leaf image
+        CONFIDENCE_THRESHOLD = 40.0
+        if prediction["confidence"] < CONFIDENCE_THRESHOLD:
+            return JSONResponse(content={
+                "filename": file.filename,
+                "image_type": img_type,
+                "is_valid_leaf": False,
+                "message": "The uploaded image does not appear to be a clear leaf photo. Please upload a clear image of a plant leaf.",
+                "prediction": {
+                    "class": prediction["category"],
+                    "confidence": prediction["confidence"],
+                },
+                "disease_information": None,
+            })
+
         # LLM disease info
         try:
             disease_info = get_disease_info(prediction["category"], language)
@@ -88,6 +103,7 @@ async def predict(file: UploadFile = File(...), language: str = Form("English"))
         return JSONResponse(content={
             "filename": file.filename,
             "image_type": img_type,
+            "is_valid_leaf": True,
             "prediction": {
                 "class": prediction["category"],
                 "confidence": prediction["confidence"],

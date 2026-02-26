@@ -41,9 +41,11 @@
 | **AI/ML** | Disease Detection | Fine-tuned ResNet50 with custom preprocessing pipeline |
 | **AI/ML** | Severity Scoring | Color-coded severity levels (Mild / Moderate / Severe) |
 | **AI/ML** | Confidence Breakdown | Visual bar chart of top prediction probabilities |
+| **AI/ML** | Image Validation | Auto-detects unclear / irrelevant uploads and prompts for a clearer image |
 | **LLM** | Chat Assistant | Natural-language plant health Q&A via Groq Llama 3.1 |
 | **LLM** | Treatment Plans | Structured disease info with symptoms, causes & remedies |
 | **LLM** | Plant Care Tips | AI-generated daily/weekly care routines |
+| **UX** | Camera Capture | Open device camera & capture a leaf photo directly in-app |
 | **UX** | Multi-Language | 8 languages — EN, HI, ES, FR, DE, PT, ZH, AR |
 | **UX** | PDF Reports | Downloadable professional plant health reports |
 | **UX** | Prediction History | Searchable local history with rating & re-view |
@@ -125,9 +127,12 @@ flowchart LR
     C --> D[Home Page]
     B -->|Yes| D
 
-    D --> E[Upload Leaf Image]
+    D --> E[Upload or Capture<br/>Leaf Image]
     E --> F[AI Prediction]
-    F --> G[Results Page]
+    F --> F1{Valid Leaf?}
+    F1 -->|No| E2[⚠️ Upload Clear Image]
+    E2 --> E
+    F1 -->|Yes| G[Results Page]
 
     G --> G1[📊 Confidence Chart]
     G --> G2[🚨 Severity Level]
@@ -285,7 +290,8 @@ npm run dev
 
 1. Open **http://localhost:5173** in your browser
 2. **Sign up** or **Sign in** (email/password or Google)
-3. Navigate to **Detect** → upload a leaf image → get AI diagnosis
+3. Navigate to **Detect** → upload a leaf image **or open the camera to capture one** → get AI diagnosis
+   - If the image is unclear or not a plant leaf, you'll be prompted to upload a clearer image
 4. Use the **floating chat bubble** (bottom-right corner) to ask any question
 5. Check **History** to review past predictions
 6. Download **PDF reports** from the Results page
@@ -329,11 +335,12 @@ Upload a leaf image for disease classification.
 | `file` | `UploadFile` | Form data | Yes |
 | `language` | `string` | Form data | No (default: `"English"`) |
 
-**Response:**
+**Response (valid leaf — confidence ≥ 40%):**
 ```json
 {
   "filename": "leaf.jpg",
   "image_type": "jpeg",
+  "is_valid_leaf": true,
   "prediction": {
     "class": "Tomato___Early_blight",
     "confidence": 0.943
@@ -346,6 +353,21 @@ Upload a leaf image for disease classification.
     "treatment_options": [{"method": "...", "description": "...", "effectiveness": "High"}],
     "prevention": ["..."]
   }
+}
+```
+
+**Response (unclear / irrelevant image — confidence < 40%):**
+```json
+{
+  "filename": "random.jpg",
+  "image_type": "jpeg",
+  "is_valid_leaf": false,
+  "message": "The uploaded image does not appear to be a clear leaf photo. Please upload a clear image of a plant leaf.",
+  "prediction": {
+    "class": "...",
+    "confidence": 0.12
+  },
+  "disease_information": null
 }
 ```
 
@@ -422,8 +444,8 @@ ResNet50 (ImageNet pre-trained, frozen early layers)
 ```
 Croply_AI/
 ├── backend/
-│   ├── main.py                      # FastAPI REST endpoints
-│   ├── predict.py                   # Image preprocessing + inference
+│       │   ├── main.py                      # FastAPI REST endpoints (incl. image validation)
+│       │   ├── predict.py                   # Image preprocessing + inference
 │   ├── model.py                     # Training script (ResNet50 fine-tuning)
 │   ├── llm.py                       # Groq LLM integration module
 │   ├── .env                         # API keys (not committed)
@@ -462,7 +484,7 @@ Croply_AI/
 │       └── pages/
 │           ├── HomePage.jsx         # Landing page + feature grid
 │           ├── AuthPage.jsx         # Login / Sign up
-│           ├── DetectPage.jsx       # Image upload + plant name input
+│           ├── DetectPage.jsx       # Image upload + camera capture + plant name input
 │           ├── ResultsPage.jsx      # Prediction results + PDF + rating
 │           ├── ChatPage.jsx         # AI chat interface
 │           ├── HistoryPage.jsx      # Prediction history
