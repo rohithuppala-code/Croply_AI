@@ -1,14 +1,15 @@
 // Firebase configuration for Croply AI
+// All sensitive keys are loaded from environment variables (see frontend/.env.example)
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAbar02wUJiIKbCObtJkh1sUa1Pd7gRQGs",
-  authDomain: "auth-plant-disease-detection.firebaseapp.com",
-  projectId: "auth-plant-disease-detection",
-  storageBucket: "auth-plant-disease-detection.firebasestorage.app",
-  messagingSenderId: "246270710518",
-  appId: "1:246270710518:web:a262f9c85f878616e012d7"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);
